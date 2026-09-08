@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CliNe</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <img class="logo" src="128.png" alt="CliNe" />
+      <div class="title">CliNe</div>
+      <div class="subtitle">Clickbait Detector</div>
+      <div class="line"></div>
+
+      <p class="desc">
+        Scans the page headline and scores it with a local LSTM API. Start the
+        API on <code>127.0.0.1:10000</code>, then enable and scan.
+      </p>
+
+      <button class="button-54" id="toggleBtn" type="button">Enable</button>
+      <button class="button-54 secondary" id="scanBtn" type="button">
+        Scan this page
+      </button>
+
+      <div id="status" class="status" aria-live="polite"></div>
+
+      <div class="footer">
+        <div class="version">v2.0</div>
+        <a
+          href="https://github.com/KishanMunjpara/Click-bait-Extension"
+          target="_blank"
+          rel="noreferrer"
+          >GitHub</a
+        >
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

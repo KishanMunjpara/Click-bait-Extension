@@ -1,0 +1,6 @@
+flask>=2.3,<4
+flask-cors>=4.0
+tensorflow==2.15.1
+numpy>=1.23,<2
+gunicorn>=21.2
+h5py>=3.8

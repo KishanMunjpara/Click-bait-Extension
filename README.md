@@ -1,56 +1,94 @@
-# 📌📌🤖CliNe - Clickbait News Detector
+# CliNe — Clickbait News Detector
 
-![CliNe Logo](ui-ux_design/style_guide/banner_chrome.png)
+**Chrome extension + LSTM API** that scores news headlines for clickbait in real time.
 
-CliNe is a Chrome extension and API that helps users identify clickbait news titles while browsing news websites. It utilizes natural language processing techniques to analyze news titles and provide real-time feedback on their clickbait nature.
+Recovered and rebuilt after Git LFS assets were lost on the original repo — working model weights, API, and Manifest V3 extension are in-tree again.
 
-## Project Overview
-This project aims to combat the spread of clickbait news by providing users with a tool to identify potentially misleading titles. It consists of the following components:
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://www.tensorflow.org/)
+[![Chrome](https://img.shields.io/badge/Chrome-MV3-green.svg)](https://developer.chrome.com/docs/extensions/mv3/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-- **Machine Learning**: The machine learning part involves training a deep learning model using LSTM (Long Short-Term Memory) architecture. The model is trained on a labeled dataset of clickbait and non-clickbait news titles, and it learns to recognize patterns and features that distinguish between the two categories.
+![CliNe banner](docs/images/banner.png)
 
-By leveraging the power of machine learning, the CliNe project provides users with an effective tool to identify and avoid clickbait news titles, promoting more informed and reliable browsing experiences.
+## What it does
 
-- **Chrome Extension**: A browser extension that integrates with Google Chrome and provides real-time clickbait detection while browsing news websites.
+1. **LSTM classifier** (Keras) tokenizes a headline and outputs a clickbait probability  
+2. **Flask API** exposes `POST /predict` for the extension (and curl / other clients)  
+3. **Chrome extension** reads the page `h1` / headline and shows the score in the popup  
 
-- **API**: A Python-based API that powers the clickbait detection functionality of the Chrome extension. It uses machine learning models to analyze news titles and classify them as clickbait or non-clickbait.
+![Extension UI](docs/images/extension.jpeg)
 
-## Key Features
-- Real-time clickbait detection while browsing news websites.
-- Adjustable sensitivity levels for clickbait detection.
-- Pop-up alerts for identified clickbait titles.
-- Ability to report false positives or false negatives for continuous improvement.
-- Local deployment of the API for users who want to run it on their own devices.
+### Model snapshot
 
-## Installation and Usage
-To use CliNe, follow the instructions below:
-Read **Installation guide** given in documentation and install it.
-- docs\CliNe_User Guide.pdf
+| Metric | Notes |
+|--------|--------|
+| Architecture | LSTM + embedding over padded title sequences (`maxlen=20`) |
+| Serving | Saved Keras model + tokenizer pickle under `api/models/` |
+| Threshold | Default `0.5` (override with `CLICKBAIT_THRESHOLD`) |
 
+![Training accuracy](docs/images/accuracy.png)
+![Confusion matrix](docs/images/confusion_matrix.png)
 
-## Folder Structure
-- [code](code) Main code for API and Chrome Extension.
-- [data](data) Contains the dataset and word embeddings.
-- [docs](docs) All the project-related documentations.
-- [models](models) Contains the trained model and weights.
-- [notebooks](notebooks) Includes Jupyter notebooks for data preparation, model training, etc.
-- [resources](resources) Additional resources such as GloVe-word embeddings files.
-- [results](results) Contains generated results such as accuracy and loss graphs, API test and final results etc.
-- [UI-UX Design](ui-ux_design) Includes screenshots and wireframes showcasing the UI and design.
+## Quick start
 
-## Developers
-- Kishan Munjpara - kishanmunjpara2710@gmail.com
-- Janakar Patel - pateljankar124@gmail.com
-- Abhi Prajapati - abhiprajapati011@gmail.com
+### 1. API
 
-## Contributing
-We welcome contributions from the community. If you have any suggestions, bug reports, or feature requests, please submit them via the Issues section of this repository.
+Requires **Python 3.10 or 3.11** (TensorFlow 2.15 wheels).
+
+```bash
+cd api
+python3.11 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+API listens on **http://127.0.0.1:10000**
+
+```bash
+curl -s http://127.0.0.1:10000/health
+curl -s -X POST http://127.0.0.1:10000/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"You Won'\''t Believe What Happened Next"}'
+```
+
+Example response:
+
+```json
+{
+  "label": "clickbait",
+  "score": 0.91,
+  "threshold": 0.5,
+  "text": "You Won't Believe What Happened Next"
+}
+```
+
+### 2. Chrome extension
+
+1. Open `chrome://extensions` → enable **Developer mode**  
+2. **Load unpacked** → select the `extension/` folder  
+3. Open a news article → click the CliNe icon → **Enable** → **Scan this page**  
+
+The extension talks to `http://127.0.0.1:10000/predict` (change via `chrome.storage.sync.apiUrl` if needed).
+
+## Project layout
+
+```
+api/
+  app.py              # Flask predict + health
+  requirements.txt
+  models/             # Keras model, weights, tokenizer
+extension/            # Manifest V3 Chrome extension
+docs/images/          # Banner, UI shot, training plots
+```
+
+## Notes
+
+- Original public clone only had **broken Git LFS pointers**; runtime assets were restored from the sibling `CliNe_API` / extension sources and cleaned up here.  
+- Heavy GloVe dumps and university PDF write-ups were dropped so the repo stays cloneable.  
+- Team project origins: Kishan Munjpara, Janakar Patel, Abhi Prajapati.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
 
-## Acknowledgements
-We would like to express our gratitude to the creators of the GloVe word embeddings and the open-source libraries used in this project for their valuable contributions.
-
----
-Thank you for using CliNe! We hope this tool helps you identify and avoid clickbait news titles while browsing the web.
+MIT — see [LICENSE](LICENSE)

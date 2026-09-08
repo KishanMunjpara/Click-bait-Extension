@@ -1,0 +1,25 @@
+{
+  "name": "CliNe — Clickbait Detector",
+  "description": "Detect clickbait headlines on news pages using a local LSTM API",
+  "version": "2.0.0",
+  "manifest_version": 3,
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["http://127.0.0.1:10000/*", "http://localhost:10000/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CliNe",
+    "default_icon": {
+      "16": "16.png",
+      "48": "48.png",
+      "128": "128.png"
+    }
+  },
+  "icons": {
+    "16": "16.png",
+    "48": "48.png",
+    "128": "128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
